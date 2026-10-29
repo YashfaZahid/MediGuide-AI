@@ -1,0 +1,97 @@
+# MediGuide AI - Roman Reverie palette (all swatches in use)
+# Espresso #2F2826 | Olive #5C6640 | Burgundy #782E3B | Ochre #B88343 | Travertine #D9C79F / #F3EBDD
+
+[theme]
+base = "light"
+# Olive - primary actions / focus
+primaryColor = "#5C6640"
+# Travertine family - readable warm page surface (lighter than raw swatch for contrast)
+backgroundColor = "#F3EBDD"
+# Travertine swatch - cards / secondary surfaces
+secondaryBackgroundColor = "#D9C79F"
+# Espresso - body text on light surfaces (high contrast)
+textColor = "#2F2826"
+# Burgundy - links and emphasis on light surfaces
+linkColor = "#782E3B"
+# Ochre - borders / chrome accents
+borderColor = "#B88343"
+font = "Poppins:https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+headingFont = "Poppins:https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap"
+baseFontSize = 16
+baseRadius = "md"
+buttonRadius = "md"
+showWidgetBorder = true
+showSidebarBorder = true
+paddingTop = "1rem"
+paddingBottom = "1.5rem"
+headingFontSizes = ["1.75rem", "1.35rem", "1.15rem", "1.05rem", "1rem", "0.95rem"]
+headingFontWeights = [600, 600, 600, 600, 500, 500]
+metricValueFontSize = "1.45rem"
+# Semantic mapping stays inside the palette
+greenColor = "#5C6640"
+blueColor = "#5C6640"
+orangeColor = "#B88343"
+redColor = "#782E3B"
+grayColor = "#5A524C"
+codeTextColor = "#2F2826"
+codeBackgroundColor = "#E8DCC4"
+dataframeHeaderBackgroundColor = "#5C6640"
+dataframeHeaderTextColor = "#F3EBDD"
+dataframeBorderColor = "#B88343"
+chartCategoricalColors = ["#5C6640", "#782E3B", "#B88343", "#2F2826", "#D9C79F", "#777B69", "#9A6B35"]
+
+[theme.sidebar]
+# Espresso field
+backgroundColor = "#2F2826"
+secondaryBackgroundColor = "#3A312E"
+# Travertine text on espresso (readable)
+textColor = "#F3EBDD"
+# Olive accent on dark sidebar
+primaryColor = "#9AA378"
+borderColor = "#B88343"
+linkColor = "#D9C79F"
+
+[theme.light]
+primaryColor = "#5C6640"
+backgroundColor = "#F3EBDD"
+secondaryBackgroundColor = "#D9C79F"
+textColor = "#2F2826"
+linkColor = "#782E3B"
+borderColor = "#B88343"
+greenColor = "#5C6640"
+orangeColor = "#B88343"
+redColor = "#782E3B"
+
+[theme.light.sidebar]
+backgroundColor = "#2F2826"
+secondaryBackgroundColor = "#3A312E"
+textColor = "#F3EBDD"
+primaryColor = "#9AA378"
+borderColor = "#B88343"
+linkColor = "#D9C79F"
+
+[theme.dark]
+primaryColor = "#9AA378"
+backgroundColor = "#1A1614"
+secondaryBackgroundColor = "#2F2826"
+# Light travertine text on dark espresso
+textColor = "#F3EBDD"
+borderColor = "#B88343"
+linkColor = "#D9C79F"
+redColor = "#C45A6A"
+orangeColor = "#B88343"
+greenColor = "#9AA378"
+
+[theme.dark.sidebar]
+backgroundColor = "#120F0E"
+secondaryBackgroundColor = "#2F2826"
+textColor = "#F3EBDD"
+primaryColor = "#9AA378"
+borderColor = "#B88343"
+linkColor = "#D9C79F"
+
+[server]
+headless = true
+
+[browser]
+gatherUsageStats = false

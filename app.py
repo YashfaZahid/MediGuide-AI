@@ -40,7 +40,10 @@ from src.config import (
     SEVERITY_MAX,
     SEVERITY_MIN,
     SYMPTOM_OPTIONS,
+    clear_api_key,
     has_api_key,
+    looks_like_api_key,
+    set_api_key,
 )
 from src.report import build_guidance_pdf
 from src.utils import hash_inputs, urgency_streamlit_intent, validate_inputs
@@ -66,6 +69,7 @@ _STATE_DEFAULTS: dict[str, Any] = {
     "workspace": "Intake",
     "session_history": [],
     "narrative_text": "",
+    "api_authenticated": False,
 }
 for _key, _value in _STATE_DEFAULTS.items():
     if _key not in st.session_state:
@@ -82,6 +86,65 @@ def _reset_results() -> None:
     st.session_state.run_narrative = False
     st.session_state.narrative_text = ""
     st.session_state.workspace = "Intake"
+
+
+def _render_login_page() -> None:
+    """Gate: collect OpenAI API key before showing the main app."""
+    st.html(
+        """
+<style>
+section[data-testid="stSidebar"] { display: none !important; }
+div[data-testid="stSidebarCollapsedControl"] { display: none !important; }
+@keyframes mg-login-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+div[class*="st-key-login_panel"] {
+  animation: mg-login-rise 0.45s ease-out;
+}
+</style>
+"""
+    )
+    _, center, _ = st.columns([1, 1.25, 1])
+    with center:
+        with st.container(border=True, key="login_panel"):
+            _render_brand_header(compact=False)
+            st.markdown(
+                "Enter your **OpenAI API key** to open the educational "
+                "symptom guidance workspace."
+            )
+            with st.form("api_key_login", clear_on_submit=False, border=False):
+                api_key = st.text_input(
+                    "OpenAI API key",
+                    type="password",
+                    placeholder="sk-...",
+                    help=(
+                        "Your key stays in this browser session only. "
+                        "It is not written to disk or committed to git."
+                    ),
+                    autocomplete="current-password",
+                )
+                submitted = st.form_submit_button(
+                    "Continue to app",
+                    type="primary",
+                    icon=":material/login:",
+                    width="stretch",
+                )
+            if submitted:
+                if not looks_like_api_key(api_key):
+                    st.error(
+                        "Enter a valid OpenAI API key (starts with sk-).",
+                        icon=":material/key_off:",
+                    )
+                else:
+                    set_api_key(api_key)
+                    st.session_state.api_authenticated = True
+                    st.rerun()
+            st.caption(
+                "Keys come from platform.openai.com. MediGuide never stores "
+                "your key in the repository."
+            )
+            st.info(DISCLAIMER_SHORT, icon=":material/health_and_safety:")
 
 
 def _render_brand_header(*, compact: bool = False) -> None:
@@ -453,6 +516,13 @@ def _render_results(assessment: dict[str, Any], normalized: dict[str, Any]) -> N
 
 
 # ---------------------------------------------------------------------------
+# API key login gate
+# ---------------------------------------------------------------------------
+if not st.session_state.api_authenticated:
+    _render_login_page()
+    st.stop()
+
+# ---------------------------------------------------------------------------
 # Sidebar
 # ---------------------------------------------------------------------------
 with st.sidebar:
@@ -466,9 +536,14 @@ with st.sidebar:
     st.markdown("### Model")
     st.text(f"{OPENAI_MODEL}  |  temp {OPENAI_TEMPERATURE}")
     if has_api_key():
-        st.success("API key loaded", icon=":material/check_circle:")
+        st.success("API key active", icon=":material/check_circle:")
     else:
-        st.error("Set OPENAI_API_KEY in `.env`", icon=":material/key_off:")
+        st.error("API key missing", icon=":material/key_off:")
+    if st.button("Sign out", icon=":material/logout:", width="stretch"):
+        clear_api_key()
+        st.session_state.api_authenticated = False
+        _reset_results()
+        st.rerun()
 
     cache_label = st.selectbox("Cache mode", CACHE_MODE_OPTIONS, index=1)
     language = st.selectbox("Answer language", LANGUAGE_OPTIONS, index=0)
@@ -621,8 +696,8 @@ if st.session_state.workspace == "Intake" or st.session_state.assessment is None
 
         if not has_api_key():
             st.error(
-                "Cannot call the model without OPENAI_API_KEY. "
-                "Copy `.env.example` to `.env` and paste your key.",
+                "Cannot call the model without an OpenAI API key. "
+                "Sign out and enter your key again.",
                 icon=":material/key_off:",
             )
             st.stop()

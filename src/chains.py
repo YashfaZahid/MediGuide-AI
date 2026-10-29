@@ -15,7 +15,7 @@ from langchain_classic.chains import LLMChain
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI
 
-from src.config import OPENAI_API_KEY, OPENAI_MODEL, OPENAI_TEMPERATURE, has_api_key
+from src.config import OPENAI_MODEL, OPENAI_TEMPERATURE, get_api_key, has_api_key
 from src.prompts import (
     ASSESSMENT_CHAT_TEMPLATE,
     ASSESSMENT_PROMPT_TEMPLATE,
@@ -39,12 +39,12 @@ def build_llm(
     """Create a ChatOpenAI client. API key comes from the environment / .env."""
     if not has_api_key():
         raise MissingAPIKeyError(
-            "OPENAI_API_KEY is missing. Copy .env.example to .env and add your key."
+            "OpenAI API key is missing. Enter your key on the login screen."
         )
     return ChatOpenAI(
         model=model or OPENAI_MODEL,
         temperature=OPENAI_TEMPERATURE if temperature is None else temperature,
-        api_key=OPENAI_API_KEY,
+        api_key=get_api_key(),
         streaming=streaming,
     )
 

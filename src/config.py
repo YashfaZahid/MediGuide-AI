@@ -18,6 +18,8 @@ load_dotenv(PROJECT_ROOT / ".env")
 # ---------------------------------------------------------------------------
 # OpenAI / model settings
 # ---------------------------------------------------------------------------
+# Module-level snapshot from .env at import; prefer get_api_key() at call time
+# so a key entered on the login screen is picked up for the rest of the session.
 OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "").strip()
 OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4o-mini").strip()
 # Low temperature keeps structured JSON more consistent for the assessment chain.
@@ -118,13 +120,49 @@ EMERGENCY_BANNER: str = (
 )
 
 
+def get_api_key() -> str:
+    """Return the current OpenAI API key from the process environment."""
+    return os.getenv("OPENAI_API_KEY", "").strip()
+
+
+def set_api_key(key: str) -> None:
+    """
+    Store an OpenAI API key for this process (login / session use).
+
+    Also updates the module-level OPENAI_API_KEY snapshot for any legacy readers.
+    """
+    global OPENAI_API_KEY
+    cleaned = (key or "").strip()
+    if cleaned:
+        os.environ["OPENAI_API_KEY"] = cleaned
+    else:
+        os.environ.pop("OPENAI_API_KEY", None)
+    OPENAI_API_KEY = cleaned
+
+
+def clear_api_key() -> None:
+    """Remove the in-process API key (used on sign-out)."""
+    set_api_key("")
+
+
 def has_api_key() -> bool:
     """Return True when a non-placeholder OpenAI API key is configured."""
-    if not OPENAI_API_KEY:
+    key = get_api_key()
+    if not key:
         return False
-    if OPENAI_API_KEY.startswith("sk-your-key"):
+    if key.startswith("sk-your-key"):
         return False
     return True
+
+
+def looks_like_api_key(key: str) -> bool:
+    """Lightweight format check for a pasted OpenAI API key."""
+    cleaned = (key or "").strip()
+    if len(cleaned) < 20:
+        return False
+    if cleaned.startswith("sk-your-key"):
+        return False
+    return cleaned.startswith("sk-")
 
 
 def ensure_data_dir() -> Path:
